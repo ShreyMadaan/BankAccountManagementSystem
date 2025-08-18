@@ -9,6 +9,10 @@ public class BankAccount {
         this.balance = balance;
     }
 
+    public double getBalance(){
+        return balance;
+    }
+
     public double deposit(double amount){
         balance += amount;
         return balance;
@@ -22,4 +26,5 @@ public class BankAccount {
         balance -= amount;
         return balance;
     }
+
 }
