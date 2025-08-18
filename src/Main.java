@@ -1,76 +1,100 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
-public class Main {
+public class BankApplication {
+    private static Map<Integer, BankAccount> accounts = new HashMap<>();
+    private static Scanner scanner = new Scanner(System.in);
+    private static BankAccount loggedInAccount = null;
+
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        BankAccount account = null; // declare outside loop
-
         while (true) {
-            printMenu();
-            int choice = sc.nextInt();
-
-            switch (choice) {
-                case 1: // Create Account
-                    System.out.print("Enter Account Holder Name: ");
-                    sc.nextLine(); // consume leftover newline
-                    String name = sc.nextLine();
-
-                    System.out.print("Enter Account Number: ");
-                    String accNumber = sc.nextLine();
-
-                    System.out.print("Enter Initial Balance: ");
-                    double balance = sc.nextDouble();
-
-                    account = new BankAccount(name, accNumber, balance);
-                    System.out.println("Account created successfully!");
-                    break;
-
-                case 2: // Deposit
-                    if (account == null) {
-                        System.out.println("No account exists. Please create one first.");
-                    } else {
-                        System.out.print("Enter amount to deposit: ");
-                        double depositAmount = sc.nextDouble();
-                        account.deposit(depositAmount);
-                    }
-                    break;
-
-                case 3: // Withdraw
-                    if (account == null) {
-                        System.out.println("No account exists. Please create one first.");
-                    } else {
-                        System.out.print("Enter amount to withdraw: ");
-                        double withdrawAmount = sc.nextDouble();
-                        account.withdraw(withdrawAmount);
-                    }
-                    break;
-
-                case 4: // Check Balance
-                    if (account == null) {
-                        System.out.println("No account exists. Please create one first.");
-                    } else {
-                        System.out.println("Current Balance: " + account.getBalance());
-                    }
-                    break;
-
-                case 5: // Exit
-                    System.out.println("Exiting the application. Thank you!");
-                    sc.close();
-                    return;
-
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+            if (loggedInAccount == null) {
+                showMainMenu();
+            } else {
+                showAccountMenu();
             }
         }
     }
 
-    private static void printMenu() {
-        System.out.println("\n----- Bank Application -----");
-        System.out.println("1. Create Account");
+    private static void showMainMenu() {
+        System.out.println("\n--- Welcome to Bank Application ---");
+        System.out.println("1. Create a New Account");
+        System.out.println("2. Login");
+        System.out.println("0. Exit");
+        System.out.print("Enter choice: ");
+        int choice = scanner.nextInt();
+
+        switch (choice) {
+            case 1 -> createAccount();
+            case 2 -> login();
+            case 0 -> {
+                System.out.println("Goodbye 👋");
+                System.exit(0);
+            }
+            default -> System.out.println("Invalid choice, try again!");
+        }
+    }
+
+    private static void createAccount() {
+        System.out.print("Enter your name: ");
+        String name = scanner.next();
+        System.out.print("Set a 4-digit PIN: ");
+        String pin = scanner.next();
+        System.out.print("Enter initial deposit: ");
+        double balance = scanner.nextDouble();
+
+        BankAccount newAccount = new BankAccount(name, pin, balance);
+        accounts.put(newAccount.getAccountNumber(), newAccount);
+
+        System.out.println("✅ Account created successfully!");
+        System.out.println("Your Account Number is: " + newAccount.getAccountNumber());
+    }
+
+    private static void login() {
+        System.out.print("Enter Account Number: ");
+        int accNo = scanner.nextInt();
+        System.out.print("Enter PIN: ");
+        String pin = scanner.next();
+
+        BankAccount account = accounts.get(accNo);
+
+        if (account != null && account.verifyPin(pin)) {
+            loggedInAccount = account;
+            System.out.println("✅ Login successful! Welcome " + account.getAccountHolderName());
+        } else {
+            System.out.println("❌ Invalid account number or PIN!");
+        }
+    }
+
+    private static void showAccountMenu() {
+        System.out.println("\n--- Account Menu (" + loggedInAccount.getAccountHolderName() + ") ---");
+        System.out.println("1. Check Balance");
         System.out.println("2. Deposit");
         System.out.println("3. Withdraw");
-        System.out.println("4. Check Balance");
-        System.out.println("5. Exit");
-        System.out.print("Enter your choice: ");
+        System.out.println("4. Logout");
+        System.out.print("Enter choice: ");
+        int choice = scanner.nextInt();
+
+        switch (choice) {
+            case 1 -> System.out.println("💰 Balance: " + loggedInAccount.getBalance());
+            case 2 -> {
+                System.out.print("Enter deposit amount: ");
+                double amount = scanner.nextDouble();
+                loggedInAccount.deposit(amount);
+                System.out.println("✅ Deposit successful! New Balance: " + loggedInAccount.getBalance());
+            }
+            case 3 -> {
+                System.out.print("Enter withdrawal amount: ");
+                double amount = scanner.nextDouble();
+                loggedInAccount.withdraw(amount);
+                System.out.println("✅ Withdrawal successful! New Balance: " + loggedInAccount.getBalance());
+            }
+            case 4 -> {
+                loggedInAccount = null;
+                System.out.println("👋 Logged out successfully!");
+            }
+            default -> System.out.println("Invalid choice!");
+        }
     }
 }

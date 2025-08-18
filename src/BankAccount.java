@@ -1,43 +1,45 @@
 public class BankAccount {
-    private String accountHolderName;
-    private String accountNumber;
-    private double balance;
+    private static int accountCounter = 1000; // Auto-generate account numbers
 
-    public BankAccount(String accountHolderName, String accountNumber, double balance) {
+    private final int accountNumber;
+    private String accountHolderName;
+    private double balance;
+    private String pin; // Secure access
+
+    public BankAccount(String accountHolderName, String pin, double balance) {
+        this.accountNumber = ++accountCounter;
         this.accountHolderName = accountHolderName;
-        this.accountNumber = accountNumber;
+        this.pin = pin;
         this.balance = balance;
     }
 
-    public String getAccountHolderName() {
-        return accountHolderName;
+    public int getAccountNumber() {
+        return accountNumber;
     }
 
-    public String getAccountNumber() {
-        return accountNumber;
+    public boolean verifyPin(String enteredPin) {
+        return this.pin.equals(enteredPin);
     }
 
     public double getBalance() {
         return balance;
     }
 
-    public void deposit(double amount) {
-        if (amount > 0) {
-            balance += amount;
-            System.out.println("Successfully deposited: " + amount);
-        } else {
-            System.out.println("Deposit amount must be greater than 0.");
-        }
+    public double deposit(double amount) {
+        balance += amount;
+        return balance;
     }
 
-    public void withdraw(double amount) {
-        if (amount > 0 && amount <= balance) {
-            balance -= amount;
-            System.out.println("Successfully withdrawn: " + amount);
-        } else if (amount > balance) {
-            System.out.println("Insufficient balance!");
-        } else {
-            System.out.println("Withdrawal amount must be greater than 0.");
+    public double withdraw(double amount) {
+        if (amount > balance) {
+            System.out.println("❌ Insufficient Funds");
+            return balance;
         }
+        balance -= amount;
+        return balance;
+    }
+
+    public String getAccountHolderName() {
+        return accountHolderName;
     }
 }
