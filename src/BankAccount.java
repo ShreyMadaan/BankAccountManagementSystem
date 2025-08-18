@@ -1,30 +1,43 @@
 public class BankAccount {
-    private int accountNumber;
     private String accountHolderName;
+    private String accountNumber;
     private double balance;
 
-    public BankAccount(int accountNumber, String accountHolderName, double balance) {
-        this.accountNumber = accountNumber;
+    public BankAccount(String accountHolderName, String accountNumber, double balance) {
         this.accountHolderName = accountHolderName;
+        this.accountNumber = accountNumber;
         this.balance = balance;
     }
 
-    public double getBalance(){
+    public String getAccountHolderName() {
+        return accountHolderName;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public double getBalance() {
         return balance;
     }
 
-    public double deposit(double amount){
-        balance += amount;
-        return balance;
-    }
-
-    public double withdraw(double amount){
-        if(amount > balance){
-            System.out.println("Insufficient Funds");
-            return balance;
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            System.out.println("Successfully deposited: " + amount);
+        } else {
+            System.out.println("Deposit amount must be greater than 0.");
         }
-        balance -= amount;
-        return balance;
     }
 
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            System.out.println("Successfully withdrawn: " + amount);
+        } else if (amount > balance) {
+            System.out.println("Insufficient balance!");
+        } else {
+            System.out.println("Withdrawal amount must be greater than 0.");
+        }
+    }
 }

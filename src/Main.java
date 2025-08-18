@@ -2,29 +2,75 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Welcome to Bank Application");
-        System.out.println("Do you want to create an account?");
-        System.out.println("0. Exit");
-        System.out.println("1. Yes");
-        System.out.println("2. No");
-        System.out.println("Please Enter your choice");
         Scanner sc = new Scanner(System.in);
-        int choice = sc.nextInt();
-        if(choice == 1){
-            System.out.println("Enter your name");
-            String name = sc.next();
-            System.out.println("Enter your account number");
-            int accountNumber = sc.nextInt();
-            System.out.println("Enter your initial balance");
-            double balance = sc.nextDouble();
-            BankAccount account = new BankAccount(accountNumber, name, balance);
-            System.out.println("Account created successfully");
-        }else if(choice == 2){
-            System.out.println("Currently we don't provide any other features. Stay tuned for future updates");
-        }else if(choice == 0){
-            System.out.println("Thank you for Banking with us");
-        }else{
-            System.out.println("Invalid choice");
+        BankAccount account = null; // declare outside loop
+
+        while (true) {
+            printMenu();
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1: // Create Account
+                    System.out.print("Enter Account Holder Name: ");
+                    sc.nextLine(); // consume leftover newline
+                    String name = sc.nextLine();
+
+                    System.out.print("Enter Account Number: ");
+                    String accNumber = sc.nextLine();
+
+                    System.out.print("Enter Initial Balance: ");
+                    double balance = sc.nextDouble();
+
+                    account = new BankAccount(name, accNumber, balance);
+                    System.out.println("Account created successfully!");
+                    break;
+
+                case 2: // Deposit
+                    if (account == null) {
+                        System.out.println("No account exists. Please create one first.");
+                    } else {
+                        System.out.print("Enter amount to deposit: ");
+                        double depositAmount = sc.nextDouble();
+                        account.deposit(depositAmount);
+                    }
+                    break;
+
+                case 3: // Withdraw
+                    if (account == null) {
+                        System.out.println("No account exists. Please create one first.");
+                    } else {
+                        System.out.print("Enter amount to withdraw: ");
+                        double withdrawAmount = sc.nextDouble();
+                        account.withdraw(withdrawAmount);
+                    }
+                    break;
+
+                case 4: // Check Balance
+                    if (account == null) {
+                        System.out.println("No account exists. Please create one first.");
+                    } else {
+                        System.out.println("Current Balance: " + account.getBalance());
+                    }
+                    break;
+
+                case 5: // Exit
+                    System.out.println("Exiting the application. Thank you!");
+                    sc.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
+    }
+
+    private static void printMenu() {
+        System.out.println("\n----- Bank Application -----");
+        System.out.println("1. Create Account");
+        System.out.println("2. Deposit");
+        System.out.println("3. Withdraw");
+        System.out.println("4. Check Balance");
+        System.out.println("5. Exit");
+        System.out.print("Enter your choice: ");
     }
 }
