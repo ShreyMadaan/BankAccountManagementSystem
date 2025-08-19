@@ -1,11 +1,14 @@
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
-public class BankApplication {
-    private static Map<Integer, BankAccount> accounts = new HashMap<>();
-    private static Scanner scanner = new Scanner(System.in);
-    private static BankAccount loggedInAccount = null;
+public class Main {
+    private static final Scanner scanner = new Scanner(System.in);
+
+    // Depend on abstractions (DIP)
+    private static final AccountRepository accountRepository = new InMemoryAccountRepository();
+    private static final AccountFactory accountFactory = new AccountFactory();
+    private static final AccountService accountService = new AccountService(accountRepository, accountFactory);
+
+    private static IAccount loggedInAccount = null;
 
     public static void main(String[] args) {
         while (true) {
@@ -44,11 +47,13 @@ public class BankApplication {
         System.out.print("Enter initial deposit: ");
         double balance = scanner.nextDouble();
 
-        BankAccount newAccount = new BankAccount(name, pin, balance);
-        accounts.put(newAccount.getAccountNumber(), newAccount);
-
-        System.out.println("✅ Account created successfully!");
-        System.out.println("Your Account Number is: " + newAccount.getAccountNumber());
+        try {
+            IAccount newAccount = accountService.createAccount(name, pin, balance);
+            System.out.println("✅ Account created successfully!");
+            System.out.println("Your Account Number is: " + newAccount.getAccountNumber());
+        } catch (IllegalArgumentException ex) {
+            System.out.println("❌ " + ex.getMessage());
+        }
     }
 
     private static void login() {
@@ -57,9 +62,9 @@ public class BankApplication {
         System.out.print("Enter PIN: ");
         String pin = scanner.next();
 
-        BankAccount account = accounts.get(accNo);
+        IAccount account = accountService.login(accNo, pin);
 
-        if (account != null && account.verifyPin(pin)) {
+        if (account != null) {
             loggedInAccount = account;
             System.out.println("✅ Login successful! Welcome " + account.getAccountHolderName());
         } else {
@@ -77,18 +82,30 @@ public class BankApplication {
         int choice = scanner.nextInt();
 
         switch (choice) {
-            case 1 -> System.out.println("💰 Balance: " + loggedInAccount.getBalance());
+            case 1 -> System.out.println("💰 Balance: " + accountService.getBalance(loggedInAccount));
             case 2 -> {
                 System.out.print("Enter deposit amount: ");
                 double amount = scanner.nextDouble();
-                loggedInAccount.deposit(amount);
-                System.out.println("✅ Deposit successful! New Balance: " + loggedInAccount.getBalance());
+                try {
+                    accountService.deposit(loggedInAccount, amount);
+                    System.out.println("✅ Deposit successful! New Balance: " + accountService.getBalance(loggedInAccount));
+                } catch (IllegalArgumentException ex) {
+                    System.out.println("❌ " + ex.getMessage());
+                }
             }
             case 3 -> {
                 System.out.print("Enter withdrawal amount: ");
                 double amount = scanner.nextDouble();
-                loggedInAccount.withdraw(amount);
-                System.out.println("✅ Withdrawal successful! New Balance: " + loggedInAccount.getBalance());
+                try {
+                    boolean ok = accountService.withdraw(loggedInAccount, amount);
+                    if (ok) {
+                        System.out.println("✅ Withdrawal successful! New Balance: " + accountService.getBalance(loggedInAccount));
+                    } else {
+                        System.out.println("❌ Insufficient Funds");
+                    }
+                } catch (IllegalArgumentException ex) {
+                    System.out.println("❌ " + ex.getMessage());
+                }
             }
             case 4 -> {
                 loggedInAccount = null;

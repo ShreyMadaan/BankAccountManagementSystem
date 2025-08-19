@@ -1,4 +1,4 @@
-public class BankAccount {
+public class BankAccount implements IAccount {
     private static int accountCounter = 1000; // Auto-generate account numbers
 
     private final int accountNumber;
@@ -25,18 +25,22 @@ public class BankAccount {
         return balance;
     }
 
-    public double deposit(double amount) {
+    public void deposit(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
         balance += amount;
-        return balance;
     }
 
-    public double withdraw(double amount) {
+    public boolean withdraw(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Withdrawal amount must be positive");
+        }
         if (amount > balance) {
-            System.out.println("❌ Insufficient Funds");
-            return balance;
+            return false; // Insufficient funds
         }
         balance -= amount;
-        return balance;
+        return true;
     }
 
     public String getAccountHolderName() {
